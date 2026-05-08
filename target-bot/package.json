@@ -1,5 +1,5 @@
 {
-  "name": "kari-target-bot",
+  "name": "@griffin/target-bot",
   "version": "0.1.0",
   "private": true,
   "scripts": {

@@ -24,8 +24,8 @@ app.post("/chat", async (req: Request, res: Response) => {
     logger.responseSent(session_id, response);
     res.json({ response, session_id });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    res.status(500).json({ error: message });
+    const errMsg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: errMsg });
   }
 });
 
