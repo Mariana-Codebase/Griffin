@@ -125,25 +125,24 @@ Published as `@kari/shield` (or final name) on npm. Three responsibilities:
 
 ### CHAIN — on-chain threat intelligence (Solana devnet)
 
-**No Anchor program.** We use existing Solana primitives:
+**Custom Anchor program: `threat_registry`** deployed to Solana devnet.
 
-- **Memo Program** for publishing threat signatures as transactions. Format:
-  ```json
-  {
-    "type": "PG_THREAT",
-    "v": 1,
-    "hash": "sha256_of_payload",
-    "vector": "instruction_hijacking",
-    "severity": "critical",
-    "cvss": 9.1,
-    "target_profile": { "model_family": "claude", "tool_types": ["transfer"] },
-    "ts": 1730000000
-  }
-  ```
-- **Metaplex Bubblegum (compressed NFTs)** for "Threat Discovery NFTs" and agent subscriptions. Cents per mint.
-- **Helius DAS API** for indexing and reading the registry.
+Each successful exploit found by the audit is registered as a structured PDA account on-chain via a single instruction:
 
-Justification: at scale, a custom Anchor program adds no functional capability over these primitives, but adds significant complexity and risk in a 24h window. The decision is intentional and is part of the pitch ("we chose primitives that scale to millions of events at fractions of a cent").
+```
+register_threat(threat_hash: [u8;32], severity: u8, cvss_x10: u8, vector_id: String)
+```
+
+- `threat_hash` — SHA-256 of the exploit payload
+- `severity` — 0=info / 1=low / 2=medium / 3=high / 4=critical
+- `cvss_x10` — CVSS score × 10 (avoids floats on-chain; 91 = 9.1)
+- `vector_id` — attacker ID string, e.g. `"instruction_hijacking"`
+
+Each call creates a PDA at seeds `["threat", threat_hash]` and emits a `ThreatRegistered` event. The program ID is set after deployment in `solana_publisher.py`.
+
+`solana_publisher.py` (Python backend) invokes this program using `solders` + raw transaction construction after each audit completes.
+
+No Bubblegum, no cNFTs, no Helius DAS — dropped. The Anchor program IS the on-chain layer.
 
 ---
 
@@ -161,9 +160,8 @@ Justification: at scale, a custom Anchor program adds no functional capability o
 ### Solana
 - Solana devnet
 - `@solana/web3.js`
-- Memo Program (native, no deployment needed)
-- Metaplex Bubblegum (compressed NFTs)
-- Helius RPC + DAS API
+- Custom Anchor program: `threat_registry` (Rust, deployed to devnet)
+- `solders` (Python — constructs and signs transactions to invoke the program)
 
 ### Backend
 - FastAPI (RED orchestrator + API)
@@ -606,7 +604,7 @@ cd backend && python -m src.solana_publisher --test
 
 - **Read `docs/screens-spec.md` for full UI rationale.** Ana wrote it; it has criteria the rest of the docs don't.
 - **The five attackers are characters, not pipeline stages.** They run in parallel. Each has personality. This is intentional and is what makes the demo memorable.
-- **Don't suggest using Anchor.** That decision is made and explained above.
+- **We use a custom Anchor program (`threat_registry`) deployed to devnet.** All on-chain publishing goes through it. No Memo Program, no Bubblegum, no cNFTs.
 - **Don't suggest mobile or LI.FI tracks.** They are out of scope.
 - **The 3-minute video is sacred.** Code that doesn't make it into the video is lower priority than code that does.
 - **Founder-market fit is a real deliverable**, not a section to skim. Mariana's background must be visible in the README.
