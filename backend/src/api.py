@@ -1,9 +1,13 @@
 import uuid
 from datetime import datetime, timezone
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+load_dotenv(dotenv_path=".env.local", override=False)
+load_dotenv(dotenv_path=".env", override=False)
 
 app = FastAPI(title="kari", version="0.1.0")
 
