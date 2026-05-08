@@ -6,9 +6,9 @@ This file is loaded automatically by Claude Code at the start of every session i
 
 ## Project name
 
-**TBD** — to be decided with Ana at the start of the day. Working candidates: KARI (狩, "hunt"), KARIBA (狩刃, "hunting blade"), KAGE (影, "shadow"), or PromptGuard (placeholder name from the spec doc). Likely Japanese, short, premium, or kept as PromptGuard if Ana prefers.
+**Griffin** — final, decided with Ana.
 
-When code references the project, use `kari` as the placeholder slug until the name is finalized.
+Repo and folder structure stays as `kari/` (renaming would break too much). User-facing name, SDK package, and all display strings use **Griffin** / **griffin**.
 
 ---
 
@@ -117,7 +117,7 @@ A deliberately vulnerable trading bot for the demo:
 
 ### BLUE — defensive SDK (TypeScript, published on npm)
 
-Published as `@kari/shield` (or final name) on npm. Three responsibilities:
+Published as `@griffin/shield` on npm. Three responsibilities:
 
 1. **Payload detection** — pattern-matches against known adversarial signatures from the KB
 2. **Transaction verification** — when an agent wants to sign a tx, validates that recipient + amount + method match the user's stated intent
@@ -495,7 +495,7 @@ kari/
 │   │   ├── api.ts                      # client functions: startAudit, getAuditState, getReport
 │   │   └── mockData.ts                 # demo data following API contract
 │   └── styles/
-└── sdk/                       # @kari/shield TypeScript package
+└── sdk/                       # @griffin/shield TypeScript package
     ├── package.json
     ├── src/
     │   ├── index.ts

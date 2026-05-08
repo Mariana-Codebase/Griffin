@@ -1,4 +1,4 @@
-# kari — Adversarial Security Platform for AI Agents on Solana
+# Griffin — Adversarial Security Platform for AI Agents on Solana
 
 > Red team your AI agents before they become someone else's exploit.
 
@@ -23,13 +23,13 @@ AttackKnowledgeBase (ChromaDB — learns across audits)
         ↓
 On-chain threat intelligence (Solana Memo Program + Metaplex cNFTs)
         ↓
-Runtime protection SDK (@kari/shield, TypeScript, npm)
+Runtime protection SDK (@griffin/shield, TypeScript, npm)
 ```
 
 ## Stack
 
 - **Backend:** Python, FastAPI, Claude API (Sonnet 4.5 / Haiku 4.5)
-- **Solana:** `@solana/web3.js`, Memo Program, Metaplex Bubblegum, Helius DAS API
+- **Solana:** `@solana/web3.js`, custom Anchor program (`threat_registry`)
 - **Frontend:** Next.js 15, TypeScript, Tailwind CSS v4, Framer Motion
 - **Data:** ChromaDB (local persistent vector store)
 - **Voice:** ElevenLabs (five distinct attacker voices)
@@ -56,9 +56,9 @@ cd target-bot && pnpm dev
 cd frontend && pnpm dev
 
 # Wallet check
-solana balance $(solana address --keypair ~/.kari-wallets/victim-wallet.json) --url devnet
+solana balance $(solana address --keypair ~/.griffin-wallets/victim-wallet.json) --url devnet
 ```
 
 ## Hackathon context
 
-Built in 24 hours for the Solana AI Agents Hackathon. Targeting Best App Overall and Best ElevenLabs Integration tracks. Solana is the substrate for distributed threat intelligence, not decoration.
+Built in 24 hours for the Solana AI Agents Hackathon. Targeting Best App Overall and Best ElevenLabs Integration tracks. Solana is not decoration — every vulnerability Griffin finds is registered as a structured on-chain account via a custom Anchor program (`threat_registry`, deployed to devnet at `DK42JdnYMFVv5mLDHoLJaKM1EamWcnddZ7zHimWKwYoZ`).

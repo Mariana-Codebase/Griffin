@@ -1,5 +1,5 @@
 {
-  "name": "@kari/shield",
+  "name": "@griffin/shield",
   "version": "0.1.0",
   "description": "Runtime protection SDK for AI agents on Solana",
   "main": "dist/index.js",

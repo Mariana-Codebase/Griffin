@@ -16,7 +16,7 @@ load_dotenv(dotenv_path=_backend_dir / ".env", override=False)
 
 from .orchestrator import create_audit, get_audit, run_audit, state_to_dict
 
-app = FastAPI(title="kari", version="0.1.0")
+app = FastAPI(title="Griffin", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
