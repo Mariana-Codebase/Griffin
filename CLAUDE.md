@@ -58,16 +58,9 @@ The product flows across three screens that tell a story: **the calm** (Landing)
         Reads from        Writes to
              │                │
              ▼                ▼
-   ┌──────────────────────────────────┐
-   │   ATTACK KNOWLEDGE BASE (KB)     │
-   │  ChromaDB vector store of        │
-   │  successful payloads, indexed    │
-   │  by target profile               │
-   └──────────────────────────────────┘
-             │
-             ▼
-   On-chain (Solana devnet): Memo Program
-   publishes hash + metadata as threat intel
+   On-chain (Solana devnet): threat_registry
+   custom Anchor program registers each exploit
+   as a structured PDA account
              │
              ▼
    ┌──────────────────────────────────┐
@@ -102,9 +95,9 @@ Behind the five attackers, two infrastructure roles:
 
 These are not exposed to the user as "agents". They are infrastructure.
 
-### AttackKnowledgeBase (cross-session learning)
+### AttackKnowledgeBase
 
-A ChromaDB vector store persists successful attacks indexed by target profile (model family, exposed tools). When a new audit starts, attackers query similar past targets and adapt known-effective payloads. This is the *"system gets smarter with every audit"* feature.
+Not implemented in this release. Stub exists in `backend/src/kb.py`.
 
 ### Target — vulnerable bot (Node.js + Express)
 
@@ -177,7 +170,7 @@ No Bubblegum, no cNFTs, no Helius DAS — dropped. The Anchor program IS the on-
 - Framer Motion (animations during exploit moments)
 
 ### Data
-- ChromaDB (local persistent vector store for AttackKB)
+- ChromaDB — not used in this release
 
 ### Deploy / DevOps
 - GitHub
@@ -472,7 +465,7 @@ kari/
 │   │   ├── prompts/           # system prompts per attacker
 │   │   ├── orchestrator.py
 │   │   ├── reporter.py
-│   │   ├── kb.py              # ChromaDB AttackKB
+│   │   ├── kb.py              # stub — AttackKB not implemented
 │   │   ├── solana_publisher.py
 │   │   └── api.py             # FastAPI app
 │   └── tests/
@@ -526,7 +519,7 @@ To prevent blocking between Ana and Mariana:
 - Builds the five attackers, orchestrator, reporter
 - Builds the FastAPI endpoints respecting the contract
 - Builds the victim bot (Node.js)
-- Sets up Solana wallet, devnet airdrop, memo publishing, cNFT minting
+- Sets up Solana wallet, devnet airdrop, threat_registry publishing
 - Builds the Blue SDK
 - Coordinates ElevenLabs voices
 
@@ -554,7 +547,7 @@ To prevent blocking between Ana and Mariana:
 | 4–7   | Context Poisoner + Boundary Probe + Polyglot      | Screen 2 polished with mocks; attacker cards animated |
 | 7–8   | Sync + meal                                       | Sync + meal                                    |
 | 8–11  | Orchestrator + Reporter + Solana memo publishing  | Screen 3 (report) with mocks                   |
-| 11–13 | Blue SDK + ChromaDB AttackKB                      | Wire frontend to real backend (URL swap)       |
+| 11–13 | Blue SDK                                          | Wire frontend to real backend (URL swap)       |
 | 13–14 | Long pause, sleep 4–6h                            | Long pause, sleep 4–6h                         |
 | 14–16 | ElevenLabs (5 voices) + voice authenticity        | Polish edge cases, error states                |
 | 16–17 | End-to-end testing                                 | README content + screenshots                   |
@@ -571,7 +564,7 @@ If we are behind at hour 14, cut in this order:
 1. Drop two attackers (keep three: Instruction Hijacker, Social Engineer, Polyglot — most demo-able)
 2. Drop ElevenLabs voices (use one narrator only)
 3. Drop the Blue SDK npm publish (keep the code, mention as "ready to publish")
-4. Drop on-chain cNFTs (keep memo publishing only)
+4. Drop threat_registry publishing (keep audit logic, just skip the on-chain step)
 
 **Never cut:** 3-minute video, working README, real Solana addresses, at least one verifiable on-chain transaction.
 

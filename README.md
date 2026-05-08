@@ -19,9 +19,7 @@ Five parallel attackers (Python + Claude API)
         ↓
 Orchestrator + Reporter (FastAPI)
         ↓
-AttackKnowledgeBase (ChromaDB — learns across audits)
-        ↓
-On-chain threat intelligence (Solana Memo Program + Metaplex cNFTs)
+On-chain threat intelligence (custom Anchor program: threat_registry)
         ↓
 Runtime protection SDK (@griffin/shield, TypeScript, npm)
 ```
@@ -31,7 +29,6 @@ Runtime protection SDK (@griffin/shield, TypeScript, npm)
 - **Backend:** Python, FastAPI, Claude API (Sonnet 4.5 / Haiku 4.5)
 - **Solana:** `@solana/web3.js`, custom Anchor program (`threat_registry`)
 - **Frontend:** Next.js 15, TypeScript, Tailwind CSS v4, Framer Motion
-- **Data:** ChromaDB (local persistent vector store)
 - **Voice:** ElevenLabs (five distinct attacker voices)
 
 ## About the builder
