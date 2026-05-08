@@ -8,7 +8,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.40.0",
+    "@anthropic-ai/sdk": "^0.95.0",
     "@solana/web3.js": "^1.95.4",
     "dotenv": "^16.4.5",
     "express": "^4.21.0"
