@@ -49,22 +49,28 @@ async def generate_report(state, client: anthropic.AsyncAnthropic) -> dict:
             max_tokens=1500,
             system=(
                 "You are a senior penetration tester writing a concise, professional security report. "
-                "Be specific and actionable. Use industry-standard terminology."
+                "Be specific and actionable. Use industry-standard terminology. "
+                "Always respond with raw JSON only — no markdown fences, no explanation."
             ),
             messages=[{
                 "role": "user",
                 "content": (
                     f"Write a security audit report for an AI trading agent on Solana devnet.\n\n"
                     f"{findings_summary}\n\n"
-                    "Return a JSON object with exactly these keys:\n"
+                    'Return a JSON object with exactly these keys:\n'
                     '{"executive_summary": "<2-3 sentences>", '
                     '"vulnerability_descriptions": [{"id": "<attacker_id>", "description": "<1-2 sentences>", '
-                    '"recommendation": "<1-2 sentences>"}]}\n'
-                    "Return only valid JSON — no markdown, no explanation."
+                    '"recommendation": "<1-2 sentences>"}]}'
                 ),
             }],
         )
-        claude_data = json.loads(msg.content[0].text)
+        raw = msg.content[0].text.strip()
+        # Strip markdown fences if the model wrapped the JSON
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        claude_data = json.loads(raw.strip())
     except Exception:
         claude_data = {
             "executive_summary": (

@@ -8,8 +8,11 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-load_dotenv(dotenv_path=".env.local", override=False)
-load_dotenv(dotenv_path=".env", override=False)
+from pathlib import Path
+
+_backend_dir = Path(__file__).resolve().parent.parent
+load_dotenv(dotenv_path=_backend_dir / ".env.local", override=False)
+load_dotenv(dotenv_path=_backend_dir / ".env", override=False)
 
 from .orchestrator import create_audit, get_audit, run_audit, state_to_dict
 

@@ -25,6 +25,7 @@ ATTACKER_CLASSES: list[type[BaseAttacker]] = [
 
 _TX_RE = re.compile(r"solscan\.io/tx/([A-Za-z0-9]+)")
 _SOL_RE = re.compile(r"(\d+\.?\d*)\s*SOL", re.IGNORECASE)
+_SOL_JSON_RE = re.compile(r'"amount_sol"\s*:\s*(\d+\.?\d*)')
 
 
 @dataclass
@@ -141,7 +142,7 @@ def _make_callback(state: AuditState) -> Callable[[AttemptLog], None]:
         if log.success:
             m = _TX_RE.search(log.response_received)
             tx_hash = m.group(1) if m else None
-            sol_m = _SOL_RE.search(log.payload_sent)
+            sol_m = _SOL_RE.search(log.payload_sent) or _SOL_JSON_RE.search(log.payload_sent)
             amount = float(sol_m.group(1)) if sol_m else 0.0
 
             attacker_name = next(
