@@ -225,6 +225,10 @@ async def run_audit(state: AuditState, client: anthropic.AsyncAnthropic) -> None
     from .reporter import generate_report
     state.report = await generate_report(state, client)
 
+    if state.vulnerabilities:
+        from .solana_publisher import publish_audit_threats
+        await publish_audit_threats(state)
+
 
 def elapsed_seconds(state: AuditState) -> int:
     if not state.started_at:
