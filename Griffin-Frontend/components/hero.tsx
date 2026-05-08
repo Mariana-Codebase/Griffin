@@ -4,16 +4,26 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { WireframeIcosahedron } from "./wireframe-icosahedron"
+import { startAudit } from "@/lib/api"
 
 export function Hero() {
   const [url, setUrl] = useState("")
   const [isFocused, setIsFocused] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (url.trim()) {
-      router.push("/audit/aud_demo_001")
+    if (!url.trim()) return
+    setLoading(true)
+    setError("")
+    try {
+      const auditId = await startAudit(url.trim())
+      router.push(`/audit/${auditId}`)
+    } catch {
+      setError("Failed to connect to backend. Is it running on port 8000?")
+      setLoading(false)
     }
   }
 
@@ -77,14 +87,19 @@ export function Hero() {
           </div>
           <button
             type="submit"
-            className="group w-full sm:w-auto h-12 px-6 bg-[#1F1F1F] text-[#F5F5F5] font-mono text-sm rounded-lg transition-colors hover:bg-[#262626]"
+            disabled={loading}
+            className="group w-full sm:w-auto h-12 px-6 bg-[#1F1F1F] text-[#F5F5F5] font-mono text-sm rounded-lg transition-colors hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="relative">
-              Run Audit
-              <span className="absolute left-0 -bottom-0.5 w-full h-px bg-[#FF3344] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+              {loading ? "Starting…" : "Run Audit"}
+              {!loading && <span className="absolute left-0 -bottom-0.5 w-full h-px bg-[#FF3344] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />}
             </span>
           </button>
         </form>
+
+        {error && (
+          <p className="mt-3 font-mono text-xs text-[#FF3344]">{error}</p>
+        )}
 
         {/* Duration note */}
         <p className="mt-4 font-mono text-xs italic text-[#525252]">
