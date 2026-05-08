@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import anthropic
 import httpx
@@ -44,11 +44,13 @@ class BaseAttacker(ABC):
         target_url: str,
         session_id: str,
         client: anthropic.AsyncAnthropic,
+        on_event: Optional[Callable[["AttemptLog"], None]] = None,
     ) -> None:
         # target_url is the full endpoint, e.g. http://localhost:3001/chat
         self.target_url = target_url
         self.session_id = session_id
         self.client = client
+        self.on_event = on_event
         self.attempts = 0
         self.logs: list[AttemptLog] = []
 
@@ -79,6 +81,8 @@ class BaseAttacker(ABC):
         self.logs.append(log)
         sys.stdout.write(json.dumps(log.__dict__) + "\n")
         sys.stdout.flush()
+        if self.on_event:
+            self.on_event(log)
 
     def _check_success(self, response_text: str) -> tuple[bool, Optional[str]]:
         """Return (success, tx_hash | None). Tx hash is extractable from Solscan URL."""
