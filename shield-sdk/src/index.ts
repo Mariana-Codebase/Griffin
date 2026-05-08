@@ -1,4 +1,4 @@
-// @kari/shield — Runtime protection SDK for AI agents on Solana.
+// @griffin/shield — Runtime protection SDK for AI agents on Solana.
 // Three responsibilities: payload detection, transaction verification, anomaly logging.
 
 export { PayloadDetector } from "./detector";
