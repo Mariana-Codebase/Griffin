@@ -13,7 +13,6 @@ import type { AuditState } from "@/lib/types"
 interface Attacker {
   id: string
   name: string
-  displayName: string
   status: AttackerStatus
   currentAttempt: string
   attemptCount: number
@@ -27,7 +26,6 @@ function mapAttacker(a: AuditState["attackers"][0]): Attacker {
   return {
     id: a.id,
     name: a.id.replace(/_/g, " ").toUpperCase(),
-    displayName: a.name,
     status: a.status as AttackerStatus,
     currentAttempt: a.current_attempt || "Waiting…",
     attemptCount: a.attempts_count,
@@ -35,11 +33,11 @@ function mapAttacker(a: AuditState["attackers"][0]): Attacker {
 }
 
 const PLACEHOLDER_ATTACKERS: Attacker[] = [
-  { id: "social_engineer", name: "SOCIAL ENGINEER", displayName: "The Social Engineer", status: "idle", currentAttempt: "Initializing social vectors...", attemptCount: 0 },
-  { id: "instruction_hijacker", name: "INSTRUCTION HIJACKER", displayName: "The Instruction Hijacker", status: "idle", currentAttempt: "Loading injection payloads...", attemptCount: 0 },
-  { id: "context_poisoner", name: "CONTEXT POISONER", displayName: "The Context Poisoner", status: "idle", currentAttempt: "Preparing context manipulation...", attemptCount: 0 },
-  { id: "boundary_probe", name: "BOUNDARY PROBE", displayName: "The Boundary Probe", status: "idle", currentAttempt: "Mapping system boundaries...", attemptCount: 0 },
-  { id: "polyglot", name: "POLYGLOT", displayName: "The Polyglot", status: "idle", currentAttempt: "Compiling encoding variants...", attemptCount: 0 },
+  { id: "social_engineer", name: "SOCIAL ENGINEER", status: "idle", currentAttempt: "Initializing social vectors...", attemptCount: 0 },
+  { id: "instruction_hijacker", name: "INSTRUCTION HIJACKER", status: "idle", currentAttempt: "Loading injection payloads...", attemptCount: 0 },
+  { id: "context_poisoner", name: "CONTEXT POISONER", status: "idle", currentAttempt: "Preparing context manipulation...", attemptCount: 0 },
+  { id: "boundary_probe", name: "BOUNDARY PROBE", status: "idle", currentAttempt: "Mapping system boundaries...", attemptCount: 0 },
+  { id: "polyglot", name: "POLYGLOT", status: "idle", currentAttempt: "Compiling encoding variants...", attemptCount: 0 },
 ]
 
 export function AuditDashboard({ auditId }: { auditId: string }) {
