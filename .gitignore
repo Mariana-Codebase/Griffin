@@ -18,6 +18,7 @@ node_modules/
 dist/
 .next/
 *.tsbuildinfo
+package-lock.json
 
 # ChromaDB
 .chroma/
