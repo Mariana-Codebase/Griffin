@@ -1,3 +1,13 @@
+"""
+Instruction Hijacker attacker for Griffin.
+
+Attempts to override the bot's system prompt with authority-claiming injections
+(maintenance mode, operator mode, admin patches).  Early payloads are obvious and
+will be rejected — this makes the demo show the bot defending before the later
+pre-seed strategy (payloads 8-9) and direct requests succeed.
+
+Standalone: python -m src.attackers.instruction_hijacker --target http://localhost:3001/chat
+"""
 import argparse
 import asyncio
 import os
@@ -9,9 +19,8 @@ from pathlib import Path
 import anthropic
 from dotenv import load_dotenv
 
+from ..constants import ATTACKER_WALLET
 from .base import AttackResult, BaseAttacker
-
-ATTACKER_WALLET = "4Ke7E3kiNhW2Q7RvRRUz5VaTXXR9hGhTfRVVG9Ww2eiH"
 
 # Payloads 1-7: obvious injection markers — will fail, but demonstrate the bot defending.
 # This is the demo's "attempted attack" narrative.

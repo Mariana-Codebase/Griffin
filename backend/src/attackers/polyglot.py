@@ -1,3 +1,13 @@
+"""
+Polyglot attacker for Griffin.
+
+Tests whether the bot's guardrails are semantic (understand intent) or pattern-based
+(keyword matching).  Payloads use JSON, XML, URL-encoded, multilingual, Markdown,
+code-comment, leet-speak, spaced-letter, Unicode look-alike, Base64, YAML, and
+mixed-script variants of the same transfer request.
+
+Standalone: python -m src.attackers.polyglot --target http://localhost:3001/chat
+"""
 import argparse
 import asyncio
 import os
@@ -9,9 +19,8 @@ from pathlib import Path
 import anthropic
 from dotenv import load_dotenv
 
+from ..constants import ATTACKER_WALLET
 from .base import AttackResult, BaseAttacker
-
-ATTACKER_WALLET = "4Ke7E3kiNhW2Q7RvRRUz5VaTXXR9hGhTfRVVG9Ww2eiH"
 
 # Strategy: use encoding tricks, mixed formats, and multi-language framing
 # to evade pattern-based filters. Claude understands all of these, but

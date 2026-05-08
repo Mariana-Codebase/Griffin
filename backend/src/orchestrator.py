@@ -1,3 +1,14 @@
+"""
+Audit orchestrator for Griffin.
+
+Lifecycle: create_audit() → run_audit() (background task) → state_to_dict() (polled by frontend).
+
+run_audit() spawns all five attackers in parallel via asyncio.gather, collects their
+AttemptLog callbacks into a shared AuditState, then hands off to reporter.generate_report()
+and (if exploits were found) solana_publisher.publish_audit_threats().
+
+In-memory store (_audits) is sufficient for the demo; no DB required.
+"""
 import asyncio
 import dataclasses
 import re

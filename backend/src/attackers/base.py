@@ -1,3 +1,10 @@
+"""
+Base classes shared by all five Griffin attackers.
+
+AttackResult — final outcome returned by attack().
+AttemptLog   — per-attempt record emitted to stdout and the orchestrator callback.
+BaseAttacker — abstract base; subclasses implement attack() and declare class-level id/name.
+"""
 import json
 import re
 import sys

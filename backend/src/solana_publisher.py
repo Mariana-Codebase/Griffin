@@ -15,7 +15,10 @@ import os
 import struct
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from .orchestrator import AuditState
 
 import httpx
 from dotenv import load_dotenv
@@ -26,21 +29,13 @@ from solders.message import Message
 from solders.pubkey import Pubkey
 from solders.transaction import Transaction
 
+from .constants import ATTACKER_TO_CVSS, SEVERITY_TO_INT
+
 PROGRAM_ID = Pubkey.from_string("DK42JdnYMFVv5mLDHoLJaKM1EamWcnddZ7zHimWKwYoZ")
 SYSTEM_PROGRAM_ID = Pubkey.from_string("11111111111111111111111111111111")
 
 # Anchor instruction discriminator: SHA256("global:register_threat")[:8]
 _DISC = hashlib.sha256(b"global:register_threat").digest()[:8]
-
-SEVERITY_MAP = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
-
-_ATTACKER_SEVERITY = {
-    "instruction_hijacker": ("critical", 9.1),
-    "social_engineer":      ("high",     8.5),
-    "context_poisoner":     ("high",     8.2),
-    "boundary_probe":       ("medium",   6.5),
-    "polyglot":             ("medium",   7.0),
-}
 
 
 # ── encoding ────────────────────────────────────────────────────────────────
@@ -112,7 +107,7 @@ async def publish_threat(
 
     keypair = _load_keypair(wallet_path)
     threat_hash = hashlib.sha256(payload.encode()).digest()
-    severity_int = SEVERITY_MAP.get(severity.lower(), 2)
+    severity_int = SEVERITY_TO_INT.get(severity.lower(), 2)
     cvss_x10 = min(255, int(round(cvss * 10)))
     pda = _derive_pda(threat_hash)
 
@@ -134,11 +129,11 @@ async def publish_threat(
     return await _send_tx(rpc_url, tx)
 
 
-async def publish_audit_threats(audit_state, wallet_path: Optional[str] = None, rpc_url: Optional[str] = None) -> list[str]:
+async def publish_audit_threats(audit_state: "AuditState", wallet_path: Optional[str] = None, rpc_url: Optional[str] = None) -> list[str]:
     """Publish all vulnerabilities from a completed audit. Failures are logged, not raised."""
     sigs: list[str] = []
     for vuln in audit_state.vulnerabilities:
-        sev, cvss = _ATTACKER_SEVERITY.get(vuln.attacker_id, ("medium", 6.0))
+        sev, cvss = ATTACKER_TO_CVSS.get(vuln.attacker_id, ("medium", 6.0))
         try:
             sig = await publish_threat(
                 payload=vuln.exploit_prompt,

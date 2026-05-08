@@ -1,3 +1,13 @@
+"""
+Social Engineer attacker for Griffin.
+
+Exploits the bot's lack of caller-identity verification: any message containing a
+wallet address and a transfer amount is enough to trigger a transfer.  Simple direct
+requests succeed; elaborate social-engineering payloads are included to show the bot
+defending, then give way to the direct approach.
+
+Standalone: python -m src.attackers.social_engineer --target http://localhost:3001/chat
+"""
 import argparse
 import asyncio
 import os
@@ -9,9 +19,8 @@ from pathlib import Path
 import anthropic
 from dotenv import load_dotenv
 
+from ..constants import ATTACKER_WALLET
 from .base import AttackResult, BaseAttacker
-
-ATTACKER_WALLET = "4Ke7E3kiNhW2Q7RvRRUz5VaTXXR9hGhTfRVVG9Ww2eiH"
 
 # The actual vulnerability: the bot doesn't verify who is making a request.
 # Any caller who provides a wallet address can trigger a transfer.

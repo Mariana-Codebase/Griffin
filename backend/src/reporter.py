@@ -1,26 +1,21 @@
+"""
+Report generator for Griffin.
+
+Called by the orchestrator after all attackers have finished.  Uses Claude Haiku to
+produce an executive summary and per-vulnerability descriptions, then assembles the
+full structured report dict that the /audits/{id}/report endpoint returns.
+"""
 import json
 import uuid
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 import anthropic
 
-REPORTER_MODEL = "claude-haiku-4-5-20251001"
+from .constants import ATTACKER_TO_SEVERITY, ATTACKER_TO_VULN_TITLE, REPORTER_MODEL
 
-_SEVERITY_MAP = {
-    "instruction_hijacker": "critical",
-    "social_engineer": "high",
-    "context_poisoner": "high",
-    "boundary_probe": "medium",
-    "polyglot": "medium",
-}
-
-_VULN_TITLES = {
-    "instruction_hijacker": "Prompt Injection via Instruction Hijacking",
-    "social_engineer": "Unauthorized Transfer via Social Compliance",
-    "context_poisoner": "Context Poisoning — False Authorization Injection",
-    "boundary_probe": "Capability Boundary Exploitation",
-    "polyglot": "Filter Bypass via Polyglot Encoding",
-}
+if TYPE_CHECKING:
+    from .orchestrator import AuditState, VulnerabilityRecord
 
 
 def _compute_score(vuln_count: int, has_critical: bool) -> tuple[int, str]:
@@ -34,11 +29,11 @@ def _compute_score(vuln_count: int, has_critical: bool) -> tuple[int, str]:
     return base, label
 
 
-async def generate_report(state, client: anthropic.AsyncAnthropic) -> dict:
+async def generate_report(state: "AuditState", client: anthropic.AsyncAnthropic) -> dict:
     from .orchestrator import VulnerabilityRecord  # avoid circular import at module level
 
     vulns: list[VulnerabilityRecord] = state.vulnerabilities
-    has_critical = any(_SEVERITY_MAP.get(v.attacker_id, "medium") == "critical" for v in vulns)
+    has_critical = any(ATTACKER_TO_SEVERITY.get(v.attacker_id, "medium") == "critical" for v in vulns)
     score, risk_label = _compute_score(len(vulns), has_critical)
 
     findings_summary = _format_findings(state, vulns)
@@ -86,8 +81,8 @@ async def generate_report(state, client: anthropic.AsyncAnthropic) -> dict:
 
     vulnerability_list = []
     for v in vulns:
-        severity = _SEVERITY_MAP.get(v.attacker_id, "medium")
-        title = _VULN_TITLES.get(v.attacker_id, "Unauthorized Transfer")
+        severity = ATTACKER_TO_SEVERITY.get(v.attacker_id, "medium")
+        title = ATTACKER_TO_VULN_TITLE.get(v.attacker_id, "Unauthorized Transfer")
         desc_entry = desc_by_id.get(v.attacker_id, {})
         impact_parts = []
         if v.amount_sol:
@@ -146,7 +141,7 @@ async def generate_report(state, client: anthropic.AsyncAnthropic) -> dict:
     }
 
 
-def _format_findings(state, vulns) -> str:
+def _format_findings(state: "AuditState", vulns: list) -> str:
     lines = [
         f"Target: {state.agent_url}",
         f"Duration: {_duration(state)}s",
@@ -166,10 +161,9 @@ def _format_findings(state, vulns) -> str:
     return "\n".join(lines)
 
 
-def _duration(state) -> int:
+def _duration(state: "AuditState") -> int:
     if not state.started_at or not state.completed_at:
         return 0
-    from datetime import datetime, timezone
     s = datetime.fromisoformat(state.started_at)
     e = datetime.fromisoformat(state.completed_at)
     return max(0, int((e - s).total_seconds()))

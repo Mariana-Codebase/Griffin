@@ -1,6 +1,18 @@
+"""
+FastAPI application for Griffin.
+
+Exposes three REST endpoints consumed by the frontend:
+  POST /audits             — start a new audit (fire-and-forget background task)
+  GET  /audits/{id}/state  — live audit state, polled every 1.5 s by the dashboard
+  GET  /audits/{id}/report — final report, available once status == "completed"
+
+CORS is open to all origins so the frontend can call the API from any port during
+local development.
+"""
 import asyncio
 import os
 from datetime import datetime, timezone
+from pathlib import Path
 
 import anthropic
 from dotenv import load_dotenv
@@ -8,13 +20,11 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from pathlib import Path
-
 _backend_dir = Path(__file__).resolve().parent.parent
 load_dotenv(dotenv_path=_backend_dir / ".env.local", override=False)
 load_dotenv(dotenv_path=_backend_dir / ".env", override=False)
 
-from .orchestrator import create_audit, get_audit, run_audit, state_to_dict
+from .orchestrator import create_audit, get_audit, run_audit, state_to_dict  # noqa: E402
 
 app = FastAPI(title="Griffin", version="0.1.0")
 
@@ -52,7 +62,7 @@ async def start_audit(body: StartAuditRequest) -> dict:
 
 
 # /audits/recent must be defined before /audits/{audit_id}/... so FastAPI
-# doesn't swallow "recent" as an audit_id parameter.
+# doesn't match "recent" as an audit_id path parameter.
 @app.get("/audits/recent")
 async def get_recent_audits() -> dict:
     from .orchestrator import _audits
