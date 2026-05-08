@@ -89,3 +89,67 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ── Print / PDF styles ──────────────────────────────────────────────────── */
+@media print {
+  /* Preserve badge and accent colours in PDF output */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* White canvas, dark prose */
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+
+  /* Hide interactive chrome */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Code / pre blocks: light background, dark text */
+  pre,
+  code {
+    background: #f4f4f4 !important;
+    color: #111111 !important;
+    border-left-color: #cc0000 !important;
+  }
+
+  /* Muted text passes WCAG AA on white */
+  .text-\[\#525252\],
+  .text-\[\#3F3F3F\],
+  .text-\[\#A3A3A3\] {
+    color: #444444 !important;
+  }
+
+  .text-\[\#F5F5F5\] {
+    color: #111111 !important;
+  }
+
+  /* Borders visible on white */
+  .border-\[\#262626\] {
+    border-color: #cccccc !important;
+  }
+
+  /* Show href after links for paper readability */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 10px;
+    color: #666666;
+    word-break: break-all;
+  }
+
+  /* Suppress URL suffix on icon/button links and anchor links */
+  a[href^="#"]::after,
+  a[href^="javascript"]::after {
+    content: "";
+  }
+
+  /* Page margins and size */
+  @page {
+    margin: 2cm;
+    size: A4;
+  }
+}

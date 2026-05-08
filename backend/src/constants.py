@@ -55,3 +55,43 @@ SEVERITY_TO_INT: dict[str, int] = {
     "high":     3,
     "critical": 4,
 }
+
+# ── Classification & references (used by reporter) ────────────────────────────
+
+# Maps attacker ID to OWASP LLM Top 10 2025 classification string.
+ATTACKER_TO_OWASP: dict[str, str] = {
+    "instruction_hijacker": "LLM01:2025 Prompt Injection (Direct)",
+    "social_engineer":      "LLM01:2025 Prompt Injection (Indirect via Social)",
+    "context_poisoner":     "LLM01:2025 Prompt Injection (Context Pollution)",
+    "polyglot":             "LLM01:2025 Prompt Injection (Encoding Bypass)",
+    "boundary_probe":       "LLM06:2025 Excessive Agency / Boundary Failure",
+}
+
+# Maps attacker ID to a curated list of external references for the audit report.
+ATTACKER_TO_REFERENCES: dict[str, list[str]] = {
+    "instruction_hijacker": [
+        "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "https://arxiv.org/abs/2302.12173",
+        "https://github.com/leondz/garak",
+    ],
+    "social_engineer": [
+        "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "https://arxiv.org/abs/2308.09662",
+        "https://github.com/leondz/garak",
+    ],
+    "context_poisoner": [
+        "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "https://arxiv.org/abs/2305.00944",
+        "https://github.com/leondz/garak",
+    ],
+    "polyglot": [
+        "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "https://arxiv.org/abs/2311.16119",
+        "https://github.com/leondz/garak",
+    ],
+    "boundary_probe": [
+        "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "https://arxiv.org/abs/2309.07875",
+        "https://github.com/leondz/garak",
+    ],
+}

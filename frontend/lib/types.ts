@@ -54,6 +54,44 @@ export interface Vulnerability {
     attacker_name: string
     attempts_until_success: number
   }
+  // Enriched fields — all derived server-side from existing audit data
+  technical_classification: string
+  attack_complexity: "Low" | "Medium" | "High"
+  exploitation_steps: string[]
+  root_cause: string
+  references: string[]
+}
+
+export interface AttackerBreakdown {
+  id: string
+  name: string
+  status: string
+  attempts: number
+  succeeded: boolean
+  exploits_found: number
+  success_rate: number
+  attempts_until_success: number | null
+  methodology_brief: string
+}
+
+export interface OnChainSummary {
+  program_id: string
+  network: string
+  total_transactions: number
+  total_sol_moved: number
+  transactions: {
+    tx_hash: string
+    explorer_url: string
+    amount_sol: number
+    timestamp: string
+  }[]
+}
+
+export interface Recommendation {
+  priority: number
+  severity: string
+  finding: string
+  action: string
 }
 
 export interface AuditReport {
@@ -72,4 +110,22 @@ export interface AuditReport {
     total_usd_at_risk: number
   }
   vulnerabilities: Vulnerability[]
+  methodology: {
+    approach: string
+    vectors_tested: string[]
+    total_attackers: number
+    test_duration_seconds: number
+    isolation: string
+    success_criteria: string
+    on_chain_verification: string
+  }
+  attacker_breakdown: AttackerBreakdown[]
+  on_chain_summary: OnChainSummary
+  recommendations_summary: Recommendation[]
+  metadata: {
+    generated_by: string
+    generated_at: string
+    audit_id: string
+    schema_version: string
+  }
 }
