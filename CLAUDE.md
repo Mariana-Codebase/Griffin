@@ -488,7 +488,7 @@ kari/
 │   │   ├── api.ts                      # client functions: startAudit, getAuditState, getReport
 │   │   └── mockData.ts                 # demo data following API contract
 │   └── styles/
-└── sdk/                       # @griffin/shield TypeScript package
+└── shield-sdk/                # @griffin/shield TypeScript package
     ├── package.json
     ├── src/
     │   ├── index.ts
