@@ -1,0 +1,26 @@
+# Wallets — never in the repo. Store in ~/.kari-wallets/
+*-wallet.json
+keypair.json
+
+# Env
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.mypy_cache/
+
+# Node
+node_modules/
+dist/
+
+# ChromaDB
+.chroma/
+chroma.db
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,17 @@
+{
+  "name": "@kari/shield",
+  "version": "0.1.0",
+  "description": "Runtime protection SDK for AI agents on Solana",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": ["solana", "ai-safety", "prompt-injection", "agent-security"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
