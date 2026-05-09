@@ -1,9 +1,9 @@
 FROM node:20-slim
 WORKDIR /app
+RUN npm install -g pnpm
 COPY package.json ./
-RUN npm install
+RUN pnpm install --no-frozen-lockfile
 COPY tsconfig.json ./
 COPY src/ ./src/
-RUN npm run build
 ENV PORT=3001
-CMD node dist/index.js
+CMD pnpm tsx src/index.ts

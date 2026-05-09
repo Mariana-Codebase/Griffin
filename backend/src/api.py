@@ -35,7 +35,14 @@ app.add_middleware(
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,
 )
+
+
+@app.options("/{full_path:path}")
+async def cors_preflight(full_path: str):
+    return {"status": "ok"}
 
 
 def _get_client() -> anthropic.AsyncAnthropic:

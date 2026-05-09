@@ -1,6 +1,10 @@
 import type { AuditState, AuditReport } from "./types"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ??
+  (typeof window !== "undefined" && window.location.hostname.endsWith(".vercel.app")
+    ? "https://backend-production-bc77f.up.railway.app"
+    : "http://localhost:8000")
 
 export async function startAudit(agentUrl: string): Promise<string> {
   const res = await fetch(`${API_BASE}/audits`, {
