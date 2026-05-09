@@ -30,6 +30,7 @@ export interface AuditState {
   started_at: string
   elapsed_seconds: number
   agent: { url: string; display_name: string }
+  initial_balance_sol?: number
   attackers: AttackerState[]
   events: BackendEvent[]
   transactions: BackendTransaction[]

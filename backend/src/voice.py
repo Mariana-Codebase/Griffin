@@ -134,10 +134,10 @@ def generate_briefing(report: dict) -> Path:
         from elevenlabs import ElevenLabs  # type: ignore[import]
 
         client = ElevenLabs(api_key=api_key)
-        audio_stream = client.generate(
+        audio_stream = client.text_to_speech.convert(
+            voice_id=_VOICE_ID,
             text=text,
-            voice=_VOICE_ID,
-            model=_MODEL,
+            model_id=_MODEL,
         )
         cache_path.write_bytes(b"".join(audio_stream))
     except Exception as exc:

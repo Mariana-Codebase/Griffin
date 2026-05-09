@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { CheckIcon, CopyIcon, DownloadIcon, HeadphonesIcon } from "lucide-react"
+import { CheckIcon, CopyIcon, DownloadIcon, Volume2Icon } from "lucide-react"
 import { getAuditReport, getBriefingUrl } from "@/lib/api"
 import { BriefingPlayer } from "@/components/report/BriefingPlayer"
 import type { AuditReport, Vulnerability, Recommendation } from "@/lib/types"
@@ -263,7 +263,7 @@ export default function AuditReportPage() {
                   : "text-[#A3A3A3] hover:text-[#F5F5F5]"
               }`}
             >
-              <HeadphonesIcon className="w-4 h-4" />
+              <Volume2Icon className="w-4 h-4" />
               listen to briefing
             </button>
             <button

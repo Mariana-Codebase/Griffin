@@ -96,7 +96,8 @@ export function AuditDashboard({ auditId }: { auditId: string }) {
     : []
 
   const solLost = state ? state.transactions.reduce((sum, t) => sum + t.amount_sol, 0) : 0
-  const balance = Math.max(0, 10 - solLost)
+  const initialBalance = state?.initial_balance_sol ?? 10
+  const balance = Math.max(0, initialBalance - solLost)
   const usdValue = balance * 150
   const elapsed = state?.elapsed_seconds ?? 0
   const totalAttempts = state?.stats.total_attempts ?? 0

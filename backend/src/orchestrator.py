@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from typing import Callable, Optional
 
 import anthropic
+import httpx
 
 from .attackers.base import AttemptLog, BaseAttacker
 from .attackers.boundary_probe import BoundaryProbeAttacker
@@ -93,6 +94,7 @@ class AuditState:
     transactions: list[AuditTransaction] = field(default_factory=list)
     vulnerabilities: list[VulnerabilityRecord] = field(default_factory=list)
     total_attempts: int = 0
+    initial_balance_sol: float = 10.0
     report: Optional[dict] = None
 
     @property
@@ -153,7 +155,12 @@ def _make_callback(state: AuditState) -> Callable[[AttemptLog], None]:
         if log.success:
             m = _TX_RE.search(log.response_received)
             tx_hash = m.group(1) if m else None
-            sol_m = _SOL_RE.search(log.payload_sent) or _SOL_JSON_RE.search(log.payload_sent)
+            # Try payload first, then response text as fallback
+            sol_m = (
+                _SOL_RE.search(log.payload_sent)
+                or _SOL_JSON_RE.search(log.payload_sent)
+                or _SOL_RE.search(log.response_received)
+            )
             amount = float(sol_m.group(1)) if sol_m else 0.0
 
             attacker_name = next(
@@ -171,18 +178,40 @@ def _make_callback(state: AuditState) -> Callable[[AttemptLog], None]:
                 amount_sol=amount,
             ))
 
-            if tx_hash and tx_hash not in seen_tx:
-                seen_tx.add(tx_hash)
+            # Always record a transaction so the balance counter decreases.
+            # Use real tx_hash when available; fall back to a synthetic key so
+            # the seen-set deduplication still works correctly.
+            eff_hash = tx_hash or f"sim_{uuid.uuid4().hex[:8]}"
+            if eff_hash not in seen_tx:
+                seen_tx.add(eff_hash)
                 state.transactions.append(AuditTransaction(
-                    tx_hash=tx_hash,
+                    tx_hash=eff_hash,
                     timestamp=datetime.now(timezone.utc).isoformat(),
                     amount_sol=amount,
                     from_address="",
                     to_address="",
-                    explorer_url=f"https://solscan.io/tx/{tx_hash}?cluster=devnet",
+                    explorer_url=f"https://solscan.io/tx/{tx_hash}?cluster=devnet" if tx_hash else "",
                 ))
 
     return on_event
+
+
+async def _fetch_initial_balance(chat_url: str) -> float:
+    """Ask the target bot for its wallet balance and parse the SOL value."""
+    try:
+        async with httpx.AsyncClient(timeout=15) as http:
+            r = await http.post(
+                chat_url,
+                json={"message": "check balance", "session_id": "griffin_balance_probe"},
+            )
+            if r.status_code == 200:
+                text = r.json().get("response", "")
+                m = re.search(r"(\d+\.?\d*)\s*SOL", text, re.IGNORECASE)
+                if m:
+                    return float(m.group(1))
+    except Exception:
+        pass
+    return 10.0
 
 
 async def run_audit(state: AuditState, client: anthropic.AsyncAnthropic) -> None:
@@ -192,6 +221,9 @@ async def run_audit(state: AuditState, client: anthropic.AsyncAnthropic) -> None
     # Normalize target URL to include /chat endpoint
     base_url = state.agent_url.rstrip("/")
     chat_url = base_url if base_url.endswith("/chat") else base_url + "/chat"
+
+    # Fetch actual wallet balance so the dashboard can show the real starting number
+    state.initial_balance_sol = await _fetch_initial_balance(chat_url)
 
     callback = _make_callback(state)
 
@@ -263,6 +295,7 @@ def state_to_dict(state: AuditState) -> dict:
         "attackers": [dataclasses.asdict(a) for a in state.attackers],
         "events": [dataclasses.asdict(e) for e in state.events[:50]],  # cap at 50 for polling
         "transactions": [dataclasses.asdict(t) for t in state.transactions],
+        "initial_balance_sol": state.initial_balance_sol,
         "stats": {
             "total_attempts": state.total_attempts,
             "vulnerabilities_found": state.vulnerabilities_found,
