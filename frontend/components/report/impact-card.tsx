@@ -8,9 +8,15 @@ interface Props {
 export function ImpactCard({ impact }: Props) {
   const hasFunds = impact.sol_extracted > 0
 
+  // Strip any raw URL from the prose — the tx link is rendered separately below.
+  const displaySummary = impact.summary
+    .replace(/\s*—\s*Verified on-chain:\s*https?:\/\/\S+/g, ". Verified on-chain.")
+    .replace(/https?:\/\/\S+/g, "")
+    .trim()
+
   return (
     <div className="bg-[#0F0F0F] border border-[#262626] p-5 print:bg-[#fafafa]">
-      <p className="text-[#A3A3A3] leading-[1.7] print:text-[#111]">{impact.summary}</p>
+      <p className="text-[#A3A3A3] leading-[1.7] print:text-[#111]">{displaySummary}</p>
 
       {hasFunds && (
         <div className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-2">
