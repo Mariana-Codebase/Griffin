@@ -6,4 +6,4 @@ COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build
 ENV PORT=3001
-CMD ["node", "dist/index.js"]
+CMD node dist/index.js
