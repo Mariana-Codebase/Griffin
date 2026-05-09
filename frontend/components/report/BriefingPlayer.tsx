@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect, useCallback } from "react"
-import { Volume2Icon } from "lucide-react"
+import { Pause, Play, Volume2 } from "lucide-react"
 
 interface BriefingPlayerProps {
   briefingUrl: string
@@ -15,9 +15,39 @@ function fmt(seconds: number): string {
 
 const SPEEDS = [1, 1.25, 1.5] as const
 
+/**
+ * Decorative static waveform — a fixed pseudo-random shape rendered as bars.
+ * Not analysing the actual audio; it's just visual identity for the player.
+ */
+function Waveform({ progress, playing }: { progress: number; playing: boolean }) {
+  const heights = [
+    0.4, 0.7, 0.55, 0.85, 0.4, 0.95, 0.6, 0.45, 0.7, 0.85,
+    0.55, 0.3, 0.75, 0.9, 0.5, 0.65, 0.8, 0.4, 0.95, 0.55,
+    0.6, 0.35, 0.7, 0.85, 0.45, 0.55, 0.9, 0.5, 0.4, 0.75,
+  ]
+  const playedCount = Math.round((progress / 100) * heights.length)
+
+  return (
+    <div className="flex items-end gap-[2px] h-8" aria-hidden>
+      {heights.map((h, i) => {
+        const played = i < playedCount
+        return (
+          <span
+            key={i}
+            className={`w-[2px] rounded-full ${
+              played ? "bg-[#FF3344]" : "bg-[#262626]"
+            } ${playing && !played && i === playedCount ? "animate-pulse" : ""}`}
+            style={{ height: `${h * 100}%` }}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
 export function BriefingPlayer({ briefingUrl }: BriefingPlayerProps) {
-  const audioRef         = useRef<HTMLAudioElement | null>(null)
-  const generatingTimer  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const audioRef        = useRef<HTMLAudioElement | null>(null)
+  const generatingTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [isPlaying,      setIsPlaying]      = useState(false)
   const [currentTime,    setCurrentTime]    = useState(0)
@@ -52,7 +82,6 @@ export function BriefingPlayer({ briefingUrl }: BriefingPlayerProps) {
 
   const handlePlayPause = async () => {
     if (hasError) return
-
     const audio = setupAudio()
 
     if (isPlaying) {
@@ -102,8 +131,8 @@ export function BriefingPlayer({ briefingUrl }: BriefingPlayerProps) {
 
   if (hasError) {
     return (
-      <div className="briefing-player w-full bg-[#141414] border border-[#262626] rounded p-4">
-        <p className="font-mono text-[13px] text-[#525252] text-center">
+      <div className="briefing-player w-full bg-[#0F0F0F] border border-[#262626] p-4">
+        <p className="font-mono text-[12px] text-[#525252] text-center">
           Audio briefing unavailable
         </p>
       </div>
@@ -113,49 +142,44 @@ export function BriefingPlayer({ briefingUrl }: BriefingPlayerProps) {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0
 
   return (
-    <div className="briefing-player w-full bg-[#141414] border border-[#262626] rounded">
-      <div className="flex items-center p-4 gap-0">
+    <div className="briefing-player w-full bg-[#0F0F0F] border border-[#262626]">
+      {/* Top strip: kicker + waveform */}
+      <div className="flex items-center justify-between border-b border-[#262626] px-5 py-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#525252]">
+          Audio Briefing
+        </p>
+        <Waveform progress={progress} playing={isPlaying} />
+      </div>
 
+      {/* Main row */}
+      <div className="flex items-center gap-5 p-5">
         {/* Play / Pause */}
         <button
           onClick={handlePlayPause}
-          className="shrink-0 w-10 h-10 rounded-full border border-[#F5F5F5] flex items-center justify-center text-[#F5F5F5] hover:bg-[#1F1F1F] transition-colors"
+          className="shrink-0 w-9 h-9 rounded-full border border-[#262626] flex items-center justify-center text-[#F5F5F5] hover:border-[#FF3344] hover:text-[#FF3344] transition-colors"
           aria-label={isPlaying ? "Pause" : "Play"}
         >
           {isLoading ? (
-            <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+            <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
             </svg>
           ) : isPlaying ? (
-            <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
-              <rect x="3" y="2" width="3" height="12" rx="1"/>
-              <rect x="10" y="2" width="3" height="12" rx="1"/>
-            </svg>
+            <Pause className="w-3.5 h-3.5" />
           ) : (
-            <svg className="w-4 h-4 translate-x-0.5" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M4 3l10 5-10 5V3z"/>
-            </svg>
+            <Play className="w-3.5 h-3.5 translate-x-[1px]" />
           )}
         </button>
 
-        {/* Divider */}
-        <div className="w-px bg-[#262626] self-stretch mx-4"/>
-
-        {/* Center */}
+        {/* Time + scrubber */}
         <div className="flex-1 min-w-0">
-          <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[#525252] mb-1.5">
-            Audio Briefing
+          <p className="font-mono text-[12px] text-[#A3A3A3] tabular-nums mb-2">
+            {fmt(currentTime)}
+            <span className="text-[#3F3F3F]"> / {duration > 0 ? fmt(duration) : "--:--"}</span>
           </p>
-          <p className="font-mono text-[13px] text-[#F5F5F5] tabular-nums mb-2">
-            {fmt(currentTime)}{" "}
-            <span className="text-[#525252]">/ {duration > 0 ? fmt(duration) : "--:--"}</span>
-          </p>
-
-          {/* Scrubber */}
-          <div className="relative h-[3px] bg-[#262626] rounded-full">
+          <div className="relative h-[2px] bg-[#262626] rounded-full">
             <div
-              className="absolute left-0 top-0 h-full bg-[#F5F5F5] rounded-full pointer-events-none transition-all"
+              className="absolute left-0 top-0 h-full bg-[#FF3344] rounded-full pointer-events-none"
               style={{ width: `${progress}%` }}
             />
             <input
@@ -171,29 +195,24 @@ export function BriefingPlayer({ briefingUrl }: BriefingPlayerProps) {
               aria-label="Seek"
             />
           </div>
-
           {showGenerating && (
-            <p className="font-mono text-[11px] text-[#525252] mt-1.5 animate-pulse">
+            <p className="font-mono text-[10px] text-[#525252] mt-2 animate-pulse">
               Generating briefing…
             </p>
           )}
         </div>
 
-        {/* Divider */}
-        <div className="w-px bg-[#262626] self-stretch mx-4"/>
-
         {/* Speed + volume */}
         <div className="shrink-0 flex items-center gap-3">
           <button
             onClick={cycleSpeed}
-            className="font-mono text-[12px] text-[#525252] hover:text-[#A3A3A3] transition-colors w-10 text-center"
+            className="font-mono text-[11px] text-[#525252] hover:text-[#F5F5F5] transition-colors w-10 text-center tabular-nums"
             aria-label="Change playback speed"
           >
-            {speed}x
+            {speed}×
           </button>
-          <Volume2Icon className="w-4 h-4 text-[#525252]"/>
+          <Volume2 className="w-3.5 h-3.5 text-[#525252]" />
         </div>
-
       </div>
     </div>
   )

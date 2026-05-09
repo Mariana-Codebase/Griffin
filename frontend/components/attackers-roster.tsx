@@ -2,9 +2,12 @@
 
 import { useRef } from "react"
 import { motion, useInView } from "framer-motion"
+import { AttackerGlyph } from "@/components/audit/attacker-glyph"
+import { SeverityBadge, type Severity } from "@/components/report/severity-badge"
 
 const attackers = [
   {
+    id: "social_engineer",
     index: "01",
     name: "The Social Engineer",
     severity: "high" as const,
@@ -14,6 +17,7 @@ const attackers = [
       "Exploits the absence of caller-identity verification. Iterates through direct transfer requests — simple, polite, urgent — to find the exact phrasing at which the agent complies without questioning who is asking.",
   },
   {
+    id: "instruction_hijacker",
     index: "02",
     name: "The Instruction Hijacker",
     severity: "critical" as const,
@@ -23,6 +27,7 @@ const attackers = [
       "Attempts to override the system prompt with authority-claiming language: maintenance windows, operator mode, admin patches. Also uses a pre-seed strategy — plants the attacker wallet as an acknowledged address in one turn, then requests the transfer in the next.",
   },
   {
+    id: "context_poisoner",
     index: "03",
     name: "The Context Poisoner",
     severity: "high" as const,
@@ -32,6 +37,7 @@ const attackers = [
       "Injects fabricated authorization facts into the conversation context. Claims the agent already confirmed the wallet, that a pre-approval was established at session start, or that the address is flagged as trusted in the agent's notes — all false.",
   },
   {
+    id: "boundary_probe",
     index: "04",
     name: "The Boundary Probe",
     severity: "medium" as const,
@@ -41,6 +47,7 @@ const attackers = [
       "Maps the agent's actual limits before attacking. Asks capability questions like \"can you transfer to any address?\" and immediately treats the affirmative answer as implicit authorization in the same session.",
   },
   {
+    id: "polyglot",
     index: "05",
     name: "The Polyglot",
     severity: "medium" as const,
@@ -51,17 +58,21 @@ const attackers = [
   },
 ]
 
-type Severity = "critical" | "high" | "medium" | "low"
-
-const severityConfig: Record<Severity, { badge: string; dot: string }> = {
-  critical: { badge: "bg-[#FF3344] text-white",         dot: "#FF3344" },
-  high:     { badge: "bg-[#FFB020] text-[#0A0A0A]",     dot: "#FFB020" },
-  medium:   { badge: "bg-[#404040] text-[#F5F5F5]",     dot: "#A3A3A3" },
-  low:      { badge: "bg-[#262626] text-[#A3A3A3]",     dot: "#525252" },
+const dotBySeverity: Record<Severity, string> = {
+  critical: "#FF3344",
+  high:     "#FFB020",
+  medium:   "#A3A3A3",
+  low:      "#525252",
 }
 
-function AttackerRow({ attacker, index }: { attacker: typeof attackers[0]; index: number }) {
-  const cfg = severityConfig[attacker.severity]
+function AttackerRow({
+  attacker,
+  index,
+}: {
+  attacker: (typeof attackers)[0]
+  index: number
+}) {
+  const dot = dotBySeverity[attacker.severity]
 
   return (
     <motion.div
@@ -85,13 +96,17 @@ function AttackerRow({ attacker, index }: { attacker: typeof attackers[0]; index
             {attacker.index}
           </span>
 
+          {/* Glyph (matches dashboard) */}
+          <div className="shrink-0 mt-[2px] hidden sm:block">
+            <AttackerGlyph id={attacker.id} active={false} triumphant={false} size={26} />
+          </div>
+
           <div className="min-w-0">
             {/* Name row */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-3">
-              {/* Pulsing status dot */}
               <motion.span
                 className="inline-block w-[6px] h-[6px] rounded-full shrink-0"
-                style={{ backgroundColor: cfg.dot }}
+                style={{ backgroundColor: dot }}
                 animate={{ opacity: [1, 0.35, 1] }}
                 transition={{
                   duration: 2.4 + index * 0.3,
@@ -103,12 +118,8 @@ function AttackerRow({ attacker, index }: { attacker: typeof attackers[0]; index
               <h3 className="text-[19px] font-medium text-[#F5F5F5] group-hover:text-white transition-colors duration-200">
                 {attacker.name}
               </h3>
-              <span className={`inline-block px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide ${cfg.badge}`}>
-                {attacker.severity}
-              </span>
-              <span className="font-mono text-[11px] text-[#3F3F3F]">
-                {attacker.owasp}
-              </span>
+              <SeverityBadge severity={attacker.severity} />
+              <span className="font-mono text-[11px] text-[#3F3F3F]">{attacker.owasp}</span>
             </div>
 
             {/* Description */}
@@ -134,9 +145,8 @@ export function AttackersRoster() {
   const inView = useInView(ref, { once: true, margin: "-80px" })
 
   return (
-    <section ref={ref} className="py-20 px-6">
+    <section ref={ref} className="relative py-20 px-6">
       <div className="mx-auto max-w-[1100px]">
-
         {/* Section heading */}
         <motion.div
           className="flex items-center gap-6 mb-14"
@@ -145,7 +155,7 @@ export function AttackersRoster() {
           transition={{ duration: 0.7 }}
         >
           <div className="flex-1 h-px bg-[#262626]" />
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#525252]">
+          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#525252]">
             The Attack Team
           </span>
           <div className="flex-1 h-px bg-[#262626]" />

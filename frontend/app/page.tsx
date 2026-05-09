@@ -1,3 +1,4 @@
+import { LandingShell } from "@/components/landing/landing-shell"
 import { Nav } from "@/components/nav"
 import { Hero } from "@/components/hero"
 import { HowItWorks } from "@/components/how-it-works"
@@ -7,13 +8,15 @@ import { Footer } from "@/components/footer"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#0A0A0A]">
+    <LandingShell>
       <Nav />
-      <Hero />
-      <HowItWorks />
-      <AttackersRoster />
-      <WhoBuiltThis />
+      <main>
+        <Hero />
+        <HowItWorks />
+        <AttackersRoster />
+        <WhoBuiltThis />
+      </main>
       <Footer />
-    </main>
+    </LandingShell>
   )
 }
