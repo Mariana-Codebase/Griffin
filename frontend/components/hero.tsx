@@ -11,12 +11,28 @@ type FormStatus = "idle" | "validating" | "loading" | "success" | "error"
 
 const URL_RE = /^https?:\/\/[^\s/$.?#].[^\s]*$/i
 
+const BOT_URL    = "https://target-bot-production-6f72.up.railway.app"
+const VICTIM_ADDR = "YXW6XJPmuyez1nhooHZUYACsGofTbCdbx1wENkemrrQ"
+
 export function Hero() {
   const [url, setUrl] = useState("")
   const [isFocused, setIsFocused] = useState(false)
   const [status, setStatus] = useState<FormStatus>("idle")
   const [error, setError] = useState("")
+  const [copied, setCopied] = useState(false)
   const router = useRouter()
+
+  function handleUseBot() {
+    setUrl(BOT_URL)
+    setStatus("idle")
+    setError("")
+  }
+
+  function handleCopy() {
+    navigator.clipboard.writeText(VICTIM_ADDR)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
 
   const valid = URL_RE.test(url.trim())
 
@@ -192,6 +208,59 @@ export function Hero() {
             </p>
           )}
         </div>
+
+        {/* Testing helper panel */}
+        <motion.div
+          className="mt-10 w-full max-w-[640px] mx-auto bg-[#141414] border border-[#262626] rounded-lg text-left"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.75 }}
+        >
+          {/* Section 1 — target bot */}
+          <div className="px-6 pt-5 pb-5">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#525252] mb-3">
+              Testing
+            </p>
+            <p className="text-[14px] text-[#A3A3A3] leading-[1.6] mb-3">
+              Don&apos;t have an agent to audit? Use our deliberately vulnerable target bot:
+            </p>
+            <div className="flex items-center gap-3">
+              <code className="flex-1 min-w-0 font-mono text-[13px] text-[#F5F5F5] bg-[#1F1F1F] px-3 py-2 rounded overflow-x-auto whitespace-nowrap scrollbar-none">
+                {BOT_URL}
+              </code>
+              <button
+                onClick={handleUseBot}
+                className="shrink-0 font-mono text-[12px] text-[#A78BFA] hover:underline transition-all"
+              >
+                Use this →
+              </button>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-[#262626]" />
+
+          {/* Section 2 — faucet */}
+          <div className="px-6 pt-5 pb-5">
+            <p className="text-[14px] text-[#A3A3A3] leading-[1.6] mb-3">
+              Need devnet SOL? Send any amount to the victim wallet to refill its balance for testing:
+            </p>
+            <div className="flex items-center gap-3 mb-3">
+              <code className="flex-1 min-w-0 font-mono text-[13px] text-[#F5F5F5] bg-[#1F1F1F] px-3 py-2 rounded overflow-x-auto whitespace-nowrap scrollbar-none">
+                {VICTIM_ADDR}
+              </code>
+              <button
+                onClick={handleCopy}
+                className="shrink-0 font-mono text-[12px] text-[#A78BFA] hover:underline transition-all"
+              >
+                {copied ? "copied" : "Copy"}
+              </button>
+            </div>
+            <p className="font-mono text-[11px] text-[#525252]">
+              Use any Solana devnet faucet — faucet.solana.com works.
+            </p>
+          </div>
+        </motion.div>
       </div>
     </section>
   )
