@@ -1,6 +1,13 @@
 import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
+
+// Calling these injects @font-face for 'Geist' / 'Geist Mono' into the page —
+// the names referenced directly in globals.css. Without calling them the
+// browser has no font-face declaration and falls back to system fonts.
+const _geist = Geist({ subsets: ['latin'] })
+const _geistMono = Geist_Mono({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Griffin — Adversarial Security for AI Agents',
