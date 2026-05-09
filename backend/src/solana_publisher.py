@@ -62,8 +62,7 @@ def load_keypair(env_b58_var: str, env_path_var: str) -> Keypair:
     """Load a Solana keypair from a base58 env var (production) or JSON file (local dev)."""
     b58 = os.getenv(env_b58_var)
     if b58:
-        import base58 as _base58  # type: ignore[import]
-        return Keypair.from_bytes(bytes(_base58.b58decode(b58)))
+        return Keypair.from_base58_string(b58)
 
     path = os.getenv(env_path_var)
     if path:
