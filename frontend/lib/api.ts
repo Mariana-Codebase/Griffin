@@ -25,3 +25,7 @@ export async function getAuditReport(auditId: string): Promise<AuditReport | nul
   if (!res.ok) throw new Error(`Failed to get report: ${res.statusText}`)
   return res.json()
 }
+
+export function getBriefingUrl(auditId: string): string {
+  return `${API_BASE}/audits/${auditId}/briefing`
+}

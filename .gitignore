@@ -20,6 +20,9 @@ dist/
 *.tsbuildinfo
 package-lock.json
 
+# Audio briefing cache
+backend/.briefings_cache/
+
 # ChromaDB
 .chroma/
 chroma.db

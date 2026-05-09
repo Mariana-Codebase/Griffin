@@ -18,6 +18,7 @@ import anthropic
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 _backend_dir = Path(__file__).resolve().parent.parent
@@ -97,3 +98,24 @@ async def get_audit_report(audit_id: str) -> dict:
     if state.status != "completed" or state.report is None:
         raise HTTPException(status_code=202, detail="report not ready yet")
     return state.report
+
+
+@app.get("/audits/{audit_id}/briefing")
+async def get_briefing(audit_id: str) -> FileResponse:
+    state = get_audit(audit_id)
+    if state is None or state.status != "completed" or state.report is None:
+        raise HTTPException(status_code=404, detail="audit not found or not completed")
+
+    from .voice import generate_briefing
+
+    try:
+        loop = asyncio.get_event_loop()
+        mp3_path = await loop.run_in_executor(None, generate_briefing, state.report)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+
+    return FileResponse(
+        str(mp3_path),
+        media_type="audio/mpeg",
+        filename=f"griffin-briefing-{audit_id}.mp3",
+    )

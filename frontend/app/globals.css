@@ -105,7 +105,8 @@
   }
 
   /* Hide interactive chrome */
-  .print\:hidden {
+  .print\:hidden,
+  .briefing-player {
     display: none !important;
   }
 

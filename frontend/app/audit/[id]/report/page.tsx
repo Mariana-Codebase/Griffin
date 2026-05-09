@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react"
-import { getAuditReport } from "@/lib/api"
+import { CheckIcon, CopyIcon, DownloadIcon, HeadphonesIcon } from "lucide-react"
+import { getAuditReport, getBriefingUrl } from "@/lib/api"
+import { BriefingPlayer } from "@/components/report/BriefingPlayer"
 import type { AuditReport, Vulnerability, Recommendation } from "@/lib/types"
 
 type Severity = "critical" | "high" | "medium" | "low"
@@ -175,9 +176,10 @@ function scoreColor(score: number) {
 
 export default function AuditReportPage() {
   const { id } = useParams<{ id: string }>()
-  const [report, setReport] = useState<AuditReport | null>(null)
-  const [pending, setPending] = useState(true)
-  const [error, setError] = useState("")
+  const [report,         setReport]         = useState<AuditReport | null>(null)
+  const [pending,        setPending]        = useState(true)
+  const [error,          setError]          = useState("")
+  const [showBriefing,   setShowBriefing]   = useState(false)
 
   useEffect(() => {
     let tries = 0
@@ -252,13 +254,26 @@ export default function AuditReportPage() {
           >
             ← back to dashboard
           </Link>
-          <button
-            onClick={handleDownload}
-            className="flex items-center gap-2 font-mono text-[13px] lowercase text-[#A3A3A3] hover:text-[#F5F5F5] transition-colors"
-          >
-            <DownloadIcon className="w-4 h-4" />
-            download pdf
-          </button>
+          <div className="flex items-center gap-5">
+            <button
+              onClick={() => setShowBriefing(v => !v)}
+              className={`flex items-center gap-2 font-mono text-[13px] lowercase transition-colors ${
+                showBriefing
+                  ? "text-[#F5F5F5]"
+                  : "text-[#A3A3A3] hover:text-[#F5F5F5]"
+              }`}
+            >
+              <HeadphonesIcon className="w-4 h-4" />
+              listen to briefing
+            </button>
+            <button
+              onClick={handleDownload}
+              className="flex items-center gap-2 font-mono text-[13px] lowercase text-[#A3A3A3] hover:text-[#F5F5F5] transition-colors"
+            >
+              <DownloadIcon className="w-4 h-4" />
+              download pdf
+            </button>
+          </div>
         </div>
       </div>
 
@@ -302,6 +317,13 @@ export default function AuditReportPage() {
             </div>
           ))}
         </section>
+
+        {/* ── Briefing player ── */}
+        {showBriefing && (
+          <div className="mb-16">
+            <BriefingPlayer briefingUrl={getBriefingUrl(id)} />
+          </div>
+        )}
 
         {/* ── 2. Executive Summary ── */}
         {report.summary && (
