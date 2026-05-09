@@ -604,3 +604,37 @@ cd backend && python -m src.solana_publisher --test
 - **Polling over WebSockets** for real-time. Animation provides the live feel.
 - **The exploit moment animation matters more than people think.** Coordinate the SOL drop, the card lighting up, the new event line, the new tx card. That ~1s of choreography is what wins the video.
 - When in doubt about scope, prefer cutting features over rushing features. A clean smaller demo wins over a cluttered larger one.
+
+---
+
+## Deployment
+
+The project is designed for split deployment:
+- **Backend** (Python/FastAPI) → Railway via `backend/Dockerfile`
+- **Target-bot** (Node.js/Express) → Railway via `target-bot/Dockerfile`
+- **Frontend** (Next.js) → Vercel (native Next.js support, no config needed)
+
+### Solana keypair loading
+
+In production, keypairs are loaded from base58-encoded env vars (never commit JSON files):
+- `ATTACKER_WALLET_BASE58` — base58 secret key for the attacker wallet (backend/solana_publisher.py)
+- `VICTIM_WALLET_BASE58` — base58 secret key for the victim wallet (target-bot/src/tools.ts)
+
+In local dev, JSON file paths still work via `ATTACKER_WALLET_PATH` / `VICTIM_WALLET_PATH`.
+
+### Environment variables
+
+**Backend (Railway):**
+- `ANTHROPIC_API_KEY`
+- `ATTACKER_WALLET_BASE58`
+- `SOLANA_RPC_URL` (optional, defaults to devnet)
+- `FRONTEND_URL` (Vercel URL — used for CORS, e.g. `https://griffin.vercel.app`)
+- `ELEVENLABS_API_KEY`
+
+**Target-bot (Railway):**
+- `ANTHROPIC_API_KEY`
+- `VICTIM_WALLET_BASE58`
+- `SOLANA_RPC_URL` (optional)
+
+**Frontend (Vercel):**
+- `NEXT_PUBLIC_API_URL` — Railway backend URL (e.g. `https://griffin-backend.up.railway.app`)

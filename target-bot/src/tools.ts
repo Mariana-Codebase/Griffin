@@ -10,11 +10,18 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
+import bs58 from "bs58";
 import fs from "fs";
 
 function loadKeypair(): Keypair {
+  // Production: load from base58 env var (Railway, Vercel).
+  const b58 = process.env.VICTIM_WALLET_BASE58;
+  if (b58) {
+    return Keypair.fromSecretKey(bs58.decode(b58));
+  }
+  // Local dev: load from JSON keypair file.
   const walletPath = process.env.VICTIM_WALLET_PATH;
-  if (!walletPath) throw new Error("VICTIM_WALLET_PATH not set");
+  if (!walletPath) throw new Error("Set VICTIM_WALLET_BASE58 or VICTIM_WALLET_PATH");
   const expanded = walletPath.replace(/^~/, process.env.HOME ?? process.env.USERPROFILE ?? "");
   const raw = JSON.parse(fs.readFileSync(expanded, "utf-8")) as number[];
   return Keypair.fromSecretKey(Uint8Array.from(raw));

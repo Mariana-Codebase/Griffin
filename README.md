@@ -6,6 +6,16 @@ Deploy a team of five autonomous AI attackers against your agent simultaneously.
 
 ---
 
+## Live Demo
+
+- **Frontend:** [griffin.vercel.app](https://griffin.vercel.app) *(deployed after submission)*
+- **Backend API:** Railway public URL *(deployed after submission)*
+- **Target Bot:** Railway public URL *(deployed after submission)*
+
+Local quickstart instructions are below for reviewers who prefer to run the full stack on their machine.
+
+---
+
 ## Why This Exists
 
 AI agents with wallet access are the new attack surface. The threat is not theoretical.

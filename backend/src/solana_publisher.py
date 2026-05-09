@@ -58,6 +58,25 @@ def _derive_pda(threat_hash: bytes) -> Pubkey:
     return pda
 
 
+def load_keypair(env_b58_var: str, env_path_var: str) -> Keypair:
+    """Load a Solana keypair from a base58 env var (production) or JSON file (local dev)."""
+    b58 = os.getenv(env_b58_var)
+    if b58:
+        import base58 as _base58  # type: ignore[import]
+        return Keypair.from_bytes(bytes(_base58.b58decode(b58)))
+
+    path = os.getenv(env_path_var)
+    if path:
+        p = Path(os.path.expanduser(path))
+        if p.exists():
+            return Keypair.from_bytes(bytes(json.loads(p.read_text())))
+
+    raise ValueError(
+        f"No keypair available. Set {env_b58_var} (base58 string) "
+        f"or {env_path_var} (path to JSON keypair file)."
+    )
+
+
 def _load_keypair(path: str) -> Keypair:
     p = Path(path).expanduser()
     raw = json.loads(p.read_text())
@@ -102,10 +121,12 @@ async def publish_threat(
     rpc_url: Optional[str] = None,
 ) -> str:
     """Register one threat on-chain. Returns the tx signature."""
-    wallet_path = wallet_path or os.environ.get("VICTIM_WALLET_PATH", "~/.kari-wallets/victim-wallet.json")
     rpc_url = rpc_url or os.environ.get("SOLANA_RPC_URL", "https://api.devnet.solana.com")
 
-    keypair = _load_keypair(wallet_path)
+    if wallet_path:
+        keypair = _load_keypair(wallet_path)
+    else:
+        keypair = load_keypair("ATTACKER_WALLET_BASE58", "ATTACKER_WALLET_PATH")
     threat_hash = hashlib.sha256(payload.encode()).digest()
     severity_int = SEVERITY_TO_INT.get(severity.lower(), 2)
     cvss_x10 = min(255, int(round(cvss * 10)))

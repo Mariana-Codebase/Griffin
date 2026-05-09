@@ -36,7 +36,7 @@ export function Hero() {
       // Tiny pause to let the success state register visually.
       setTimeout(() => router.push(`/audit/${auditId}`), 220)
     } catch {
-      setError("Failed to connect to backend. Is it running on port 8000?")
+      setError("Backend unreachable. The audit service is currently down. Try again in a moment.")
       setStatus("error")
     }
   }

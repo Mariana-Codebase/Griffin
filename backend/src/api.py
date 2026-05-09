@@ -29,9 +29,11 @@ from .orchestrator import create_audit, get_audit, run_audit, state_to_dict  # n
 
 app = FastAPI(title="Griffin", version="0.1.0")
 
+_frontend_url = os.getenv("FRONTEND_URL", "")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[o for o in ["http://localhost:3000", _frontend_url] if o],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_methods=["*"],
     allow_headers=["*"],
 )
