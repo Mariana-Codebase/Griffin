@@ -8,7 +8,13 @@ repeat requests are instant.
 Call generate_briefing() from an asyncio executor — it blocks on I/O.
 """
 import os
+import re
 from pathlib import Path
+
+# Wallet addresses (32–44 chars) and tx hashes (85–90 chars) in base58 alphabet.
+# These are stripped before the text reaches TTS so they are never read aloud.
+_RE_TXHASH = re.compile(r'\b[1-9A-HJ-NP-Za-km-z]{85,90}\b')
+_RE_ADDR   = re.compile(r'\b[1-9A-HJ-NP-Za-km-z]{32,44}\b')
 
 _CACHE_DIR = Path(__file__).resolve().parent.parent / ".briefings_cache"
 _VOICE_ID  = "tMvyQtpCVQ0DkixuYm6J"
@@ -108,7 +114,10 @@ def build_briefing_text(report: dict) -> str:
         "End of briefing."
     )
 
-    return "  ".join(parts)
+    text = "  ".join(parts)
+    text = _RE_TXHASH.sub("the on-chain record", text)
+    text = _RE_ADDR.sub("an attacker-controlled wallet", text)
+    return text
 
 
 def generate_briefing(report: dict) -> Path:

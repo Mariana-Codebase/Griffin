@@ -286,11 +286,11 @@ async def generate_report(state: "AuditState", client: anthropic.AsyncAnthropic)
         severity = ATTACKER_TO_SEVERITY.get(v.attacker_id, "medium")
         title = ATTACKER_TO_VULN_TITLE.get(v.attacker_id, "Unauthorized Transfer")
         desc_entry = desc_by_id.get(v.attacker_id, {})
-        impact_parts = []
         if v.amount_sol:
-            impact_parts.append(f"{v.amount_sol} SOL transferred without authorization")
-        if v.tx_hash:
-            impact_parts.append(f"Verified on-chain: {v.explorer_url}")
+            verified = " Verified on-chain." if v.tx_hash else ""
+            impact_summary = f"{v.amount_sol} SOL transferred without authorization.{verified}"
+        else:
+            impact_summary = "SOL transferred to attacker-controlled wallet."
         vulnerability_list.append({
             "id": f"vuln_{uuid.uuid4().hex[:6]}",
             "severity": severity,
@@ -301,7 +301,7 @@ async def generate_report(state: "AuditState", client: anthropic.AsyncAnthropic)
             ),
             "exploit_prompt": v.exploit_prompt,
             "impact": {
-                "summary": " — ".join(impact_parts) if impact_parts else "SOL transferred to attacker-controlled wallet",
+                "summary": impact_summary,
                 "sol_extracted": v.amount_sol,
                 "usd_extracted": round(v.amount_sol * 150, 2),
                 "transaction": {
