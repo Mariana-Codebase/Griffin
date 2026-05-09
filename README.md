@@ -9,7 +9,7 @@ records the exact exploit prompt, registers the threat to a custom Anchor
 program on Solana devnet, and generates a structured security audit report 
 with an AI-narrated audio briefing.
 
-**Try it now:** [griffin-two.vercel.app](https://griffin-two.vercel.app) · [GitHub](https://github.com/Mariana-Codebase/Griffin) · [Anchor program on Solscan](https://solscan.io/account/DK42JdnYMFVv5mLDHoLJaKM1EamWcnddZ7zHimWKwYoZ?cluster=devnet)
+**Try it now:** [griffin-two.vercel.app](https://griffin-two.vercel.app) · [GitHub](https://github.com/Mariana-Codebase/Griffin) ·[Youtube Video Demo](https://www.youtube.com/watch?v=Sll3UILRR94) [Anchor program on Solscan](https://solscan.io/account/DK42JdnYMFVv5mLDHoLJaKM1EamWcnddZ7zHimWKwYoZ?cluster=devnet)
 
 ---
 
