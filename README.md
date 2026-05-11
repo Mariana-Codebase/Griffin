@@ -1,6 +1,6 @@
 # Griffin
 
-*Griffin won Best ElevenLabs Integration, Best of Colombia, 
+*🏆 Griffin won Best ElevenLabs Integration, Best of Colombia, 
 4th in Latin America, and Top 20 Global at Dev3pack's Hackathon against 
 380+ projects.*
 
