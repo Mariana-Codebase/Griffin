@@ -704,6 +704,6 @@ can be played while reviewing code or shared with non-technical stakeholders.
 
 ## License
 
-MIT
+
 ```
 
