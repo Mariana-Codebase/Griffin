@@ -628,9 +628,8 @@ Built by a two-person team. Equal partnership.
 
 Backend, attackers, orchestration, Solana integration, SDK.
 
-Computer engineering student and security researcher. HackerOne bug bounty 
-researcher (MercadoLibre program). OpenClaw contributor — integrated into 
-Noah AI by Plena Finance. CCNAv7 certified.
+Computer engineering student and security researcher, bug bounty 
+researcher, OpenClaw contributor, CCNAv7 certified.
 
 - [marianacodebase.com](https://marianacodebase.com)
 - [linkedin.com/in/marianasinisterra](https://linkedin.com/in/marianasinisterra)
